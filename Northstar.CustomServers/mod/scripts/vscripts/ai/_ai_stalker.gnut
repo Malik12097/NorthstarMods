@@ -205,7 +205,6 @@ void function FDStalkerThink( entity npc, entity generator )
 			npc.EnableNPCFlag( NPC_DISABLE_SENSING | NPC_IGNORE_ALL )
 			npc.ClearMoveAnim()
 			npc.SetMoveAnim("sp_spectre_sprint_F")
-			// npc.SetEnemy( generator )
 			npc.SetNoTarget( true )
 			isSprinting = true
 		}
@@ -234,9 +233,7 @@ void function FDStalkerGetsStunned( entity npc , entity generator )
 	npc.EnableNPCFlag( NPC_DISABLE_SENSING | NPC_IGNORE_ALL )
 	npc.ClearMoveAnim()
 	npc.SetMoveAnim("sp_spectre_sprint_F")
-	npc.SetNoTarget( true )
-	// npc.SetNoTarget( false )
-	// npc.SetEnemy( generator ) // stop keeping track of any player and instead go for the harvester
+	npc.SetNoTarget( true ) // stop keeping track of any player and instead go for the harvester
 }
 
 bool function TryDismemberStalker( entity npc, var damageInfo, entity attacker, int hitGroup )

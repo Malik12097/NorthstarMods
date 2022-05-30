@@ -50,6 +50,7 @@ void function GamemodeFD_Init()
 	PrecacheModel( MODEL_ATTRITION_BANK )
 	PrecacheParticleSystem($"P_smokescreen_FD")
 
+	RegisterSignal( "SniperSwitchedEnemy" ) // for use in SniperTitanThink behavior.
 	RegisterSignal("FD_ReachedHarvester")
 	RegisterSignal("OnFailedToPath")
 	RegisterSignal("StartCounter") // for use in common AI, will cause OnFailedToPath after an amount of time
@@ -169,26 +170,26 @@ void function OnNpcDeath( entity victim, entity attacker, var damageInfo )
 		spawnedNPCs.remove( findIndex )
 		switch(victimTypeID) //FD_GetAINetIndex_byAITypeID does not support all titan ids
 		{
-			case(eFD_AITypeIDs.TITAN):
-			case(eFD_AITypeIDs.RONIN):
-			case(eFD_AITypeIDs.NORTHSTAR):
-			case(eFD_AITypeIDs.SCORCH):
-			case(eFD_AITypeIDs.TONE):
-			case(eFD_AITypeIDs.ION):
-			case(eFD_AITypeIDs.MONARCH):
-			case(eFD_AITypeIDs.LEGION):
-			case(eFD_AITypeIDs.TITAN_SNIPER):
-				SetGlobalNetInt("FD_AICount_Titan", GetGlobalNetInt("FD_AICount_Titan")-1)
-				break
-			default:
-				string netIndex = FD_GetAINetIndex_byAITypeID(FD_GetAITypeID_ByString(victim.GetTargetName()))
-				if(netIndex != "")
-					SetGlobalNetInt(netIndex,GetGlobalNetInt(netIndex)-1)
-				else
-				{
-					if (victim.GetTargetName() == "Cloak Drone") // special case for cloak drone, someone in respawn fucked up here
-						SetGlobalNetInt( "FD_AICount_Drone_Cloak", GetGlobalNetInt("FD_AICount_Drone_Cloak")-1)
-				}
+		case(eFD_AITypeIDs.TITAN):
+		case(eFD_AITypeIDs.RONIN):
+		case(eFD_AITypeIDs.NORTHSTAR):
+		case(eFD_AITypeIDs.SCORCH):
+		case(eFD_AITypeIDs.TONE):
+		case(eFD_AITypeIDs.ION):
+		case(eFD_AITypeIDs.MONARCH):
+		case(eFD_AITypeIDs.LEGION):
+		case(eFD_AITypeIDs.TITAN_SNIPER):
+			SetGlobalNetInt("FD_AICount_Titan",GetGlobalNetInt("FD_AICount_Titan")-1)
+			break
+		default:
+			string netIndex = GetAiNetIdFromTargetName(victim.GetTargetName())
+			if(netIndex != "")
+				SetGlobalNetInt(netIndex,GetGlobalNetInt(netIndex)-1)
+			else
+			{
+				if (victim.GetTargetName() == "Cloak Drone") // special case for cloak drone, someone in respawn fucked up here
+					SetGlobalNetInt( "FD_AICount_Drone_Cloak", GetGlobalNetInt("FD_AICount_Drone_Cloak")-1)
+			}
 		}
 		SetGlobalNetInt("FD_AICount_Current",GetGlobalNetInt("FD_AICount_Current")-1)
 	}
