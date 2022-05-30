@@ -120,7 +120,13 @@ void function runEvents(int firstExecuteIndex)
 			print("zero index")
 			return
 		}
-		currentEvent = waveEvents[GetGlobalNetInt("FD_currentWave")][currentEvent.nextEventIndex]
+		try {
+			currentEvent = waveEvents[GetGlobalNetInt("FD_currentWave")][currentEvent.nextEventIndex]
+		}
+		catch(Exception e)
+		{
+			print(e)
+		}
 	}
 	print("runEvents End")
 }
@@ -629,7 +635,7 @@ void function spawnDroppodStalker(SmokeEvent smokeEvent,SpawnEvent spawnEvent,Wa
 		SetSquad( guy, squadName )
 		guy.AssaultSetFightRadius( 0 ) // makes them keep moving instead of stopping to shoot you.
 		AddMinimapForHumans(guy)
-		file.spawnedNPCs.append(guy)
+		spawnedNPCs.append(guy)
 		SetTargetName( guy, GetTargetNameForID(eFD_AITypeIDs.STALKER))
 		thread FDStalkerThink( guy , fd_harvester.harvester )
 		guys.append( guy )
@@ -726,11 +732,11 @@ void function SpawnIonTitan(SmokeEvent smokeEvent,SpawnEvent spawnEvent,WaitEven
 	SetSpawnOption_Titanfall(npc)
 	SetTargetName( npc, GetTargetNameForID(spawnEvent.spawnType)) // required for client to create icons
 	DispatchSpawn( npc )
-	file.spawnedNPCs.append(npc)
+	spawnedNPCs.append(npc)
 	AddMinimapForTitans(npc)
 	npc.WaitSignal( "TitanHotDropComplete" )
 	npc.GetTitanSoul().SetTitanSoulNetBool( "showOverheadIcon", true )
-	thread CommonAIThink(npc, spawnEvent.route)
+	thread singleNav_thread(npc, spawnEvent.route)
 }
 
 void function SpawnScorchTitan(SmokeEvent smokeEvent,SpawnEvent spawnEvent,WaitEvent waitEvent,SoundEvent soundEvent)
@@ -741,11 +747,11 @@ void function SpawnScorchTitan(SmokeEvent smokeEvent,SpawnEvent spawnEvent,WaitE
 	SetSpawnOption_Titanfall(npc)
 	SetTargetName( npc, GetTargetNameForID(spawnEvent.spawnType)) // required for client to create icons
 	DispatchSpawn( npc )
-	file.spawnedNPCs.append(npc)
+	spawnedNPCs.append(npc)
 	AddMinimapForTitans(npc)
 	npc.WaitSignal( "TitanHotDropComplete" )
 	npc.GetTitanSoul().SetTitanSoulNetBool( "showOverheadIcon", true )
-	thread CommonAIThink(npc, spawnEvent.route)
+	thread singleNav_thread(npc, spawnEvent.route)
 }
 
 void function SpawnRoninTitan(SmokeEvent smokeEvent,SpawnEvent spawnEvent,WaitEvent waitEvent,SoundEvent soundEvent)
@@ -756,11 +762,11 @@ void function SpawnRoninTitan(SmokeEvent smokeEvent,SpawnEvent spawnEvent,WaitEv
 	SetSpawnOption_Titanfall(npc)
 	SetTargetName( npc, GetTargetNameForID(spawnEvent.spawnType)) // required for client to create icons
 	DispatchSpawn( npc )
-	file.spawnedNPCs.append(npc)
+	spawnedNPCs.append(npc)
 	AddMinimapForTitans(npc)
 	npc.WaitSignal( "TitanHotDropComplete" )
 	npc.GetTitanSoul().SetTitanSoulNetBool( "showOverheadIcon", true )
-	thread CommonAIThink(npc, spawnEvent.route)
+	thread singleNav_thread(npc, spawnEvent.route)
 }
 
 void function SpawnToneTitan(SmokeEvent smokeEvent,SpawnEvent spawnEvent,WaitEvent waitEvent,SoundEvent soundEvent)
@@ -771,11 +777,11 @@ void function SpawnToneTitan(SmokeEvent smokeEvent,SpawnEvent spawnEvent,WaitEve
 	SetSpawnOption_Titanfall(npc)
 	SetTargetName( npc, GetTargetNameForID(spawnEvent.spawnType)) // required for client to create icons
 	DispatchSpawn( npc )
-	file.spawnedNPCs.append(npc)
+	spawnedNPCs.append(npc)
 	AddMinimapForTitans(npc)
 	npc.WaitSignal( "TitanHotDropComplete" )
 	npc.GetTitanSoul().SetTitanSoulNetBool( "showOverheadIcon", true )
-	thread CommonAIThink(npc, spawnEvent.route)
+	thread singleNav_thread(npc, spawnEvent.route)
 }
 
 void function SpawnLegionTitan(SmokeEvent smokeEvent,SpawnEvent spawnEvent,WaitEvent waitEvent,SoundEvent soundEvent)
@@ -786,11 +792,11 @@ void function SpawnLegionTitan(SmokeEvent smokeEvent,SpawnEvent spawnEvent,WaitE
 	SetSpawnOption_Titanfall(npc)
 	SetTargetName( npc, GetTargetNameForID(spawnEvent.spawnType)) // required for client to create icons
 	DispatchSpawn( npc )
-	file.spawnedNPCs.append(npc)
+	spawnedNPCs.append(npc)
 	AddMinimapForTitans(npc)
 	npc.WaitSignal( "TitanHotDropComplete" )
 	npc.GetTitanSoul().SetTitanSoulNetBool( "showOverheadIcon", true )
-	thread CommonAIThink(npc, spawnEvent.route)
+	thread singleNav_thread(npc, spawnEvent.route)
 }
 
 void function SpawnMonarchTitan(SmokeEvent smokeEvent,SpawnEvent spawnEvent,WaitEvent waitEvent,SoundEvent soundEvent)
@@ -801,11 +807,11 @@ void function SpawnMonarchTitan(SmokeEvent smokeEvent,SpawnEvent spawnEvent,Wait
 	SetSpawnOption_Titanfall(npc)
 	SetTargetName( npc, GetTargetNameForID(spawnEvent.spawnType)) // required for client to create icons
 	DispatchSpawn( npc )
-	file.spawnedNPCs.append(npc)
+	spawnedNPCs.append(npc)
 	AddMinimapForTitans(npc)
 	npc.WaitSignal( "TitanHotDropComplete" )
 	npc.GetTitanSoul().SetTitanSoulNetBool( "showOverheadIcon", true )
-	thread CommonAIThink(npc, spawnEvent.route)
+	thread singleNav_thread(npc, spawnEvent.route)
 }
 
 void function spawnNukeTitan(SmokeEvent smokeEvent,SpawnEvent spawnEvent,WaitEvent waitEvent,SoundEvent soundEvent)
