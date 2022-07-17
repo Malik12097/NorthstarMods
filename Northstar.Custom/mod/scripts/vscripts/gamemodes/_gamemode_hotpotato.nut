@@ -68,7 +68,7 @@ void function MarkRandomPlayer(entity player)
 
 	foreach ( entity p in GetPlayerArray() )
 	{
-		Highlight_ClearEnemyHighlight(p)
+		Highlight_SetEnemyHighlightWithParam1( p, "enemy_sonar", <0, 0, 0> )
 		Remote_CallFunction_NonReplay( p, "ServerCallback_ShowHotPotatoCountdown", file.hotpotatobegin + file.hotpotatoend )
 		if( p != player )
 			Remote_CallFunction_NonReplay( p, "ServerCallback_AnnounceNewMark", player.GetEncodedEHandle() )
@@ -107,9 +107,6 @@ void function HotPotatoCountdown()
 	}
 
 	player.Die( null, null, { scriptType = DF_GIB } )
-
-	foreach (entity p in GetPlayerArray())
-		Remote_CallFunction_NonReplay( p, "ServerCallback_MarkedChanged", player.GetEncodedEHandle() )
 }
 
 void function MarkNewPlayer( entity victim, var damageInfo ) // when marked punch someone, pass the hot potato
@@ -127,7 +124,7 @@ void function MarkNewPlayer( entity victim, var damageInfo ) // when marked punc
 		file.marked = victim
 		foreach ( entity p in GetPlayerArray() )
 		{
-			Highlight_ClearEnemyHighlight(p)
+			Highlight_SetEnemyHighlightWithParam1( p, "enemy_sonar", <0, 0, 0> )
 			Remote_CallFunction_NonReplay( p, "ServerCallback_MarkedChanged", victim.GetEncodedEHandle() )
 		}
 
@@ -151,6 +148,7 @@ void function MarkHasSonar( entity old, entity newp ) // give marked the ability
 void function HotPotatoInitPlayer( entity player )
 {
 	UpdateHotPotatoLoadout( player )
+	Highlight_SetEnemyHighlightWithParam1( player, "enemy_sonar", <0, 0, 0> )
 }
 
 void function HotPotatoPlayerDisconnected( entity player )
@@ -241,6 +239,8 @@ void function HotPotatoPlayerKilled( entity player, entity attacker, var damageI
 		}
 		
 		svGlobal.levelEnt.Signal( "OnMarkedDeath" )
+		foreach (entity p in GetPlayerArray())
+			Remote_CallFunction_NonReplay( p, "ServerCallback_MarkedChanged", player.GetEncodedEHandle() )
 
 		thread WaitBeforeMark()
 	}

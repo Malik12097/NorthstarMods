@@ -9,6 +9,7 @@ struct {
 	var countdownRui
 	var markedRui
 	var mfdRui
+	bool playingmusic
 } file
 
 void function ClGamemodeHotPotato_Init()
@@ -17,6 +18,8 @@ void function ClGamemodeHotPotato_Init()
 	ClGameState_RegisterGameStateAsset( $"ui/gamestate_info_ffa.rpak" )
 
 	file.markedRui = CreateCockpitRui( $"ui/overhead_icon_generic.rpak", 200 )
+	RegisterSignal( "StopMusic" )
+	file.playingmusic = false
 	// file.mfdRui = CreatePermanentCockpitRui( $"ui/gamestate_info_mfd.rpak", MINIMAP_Z_BASE - 1 )
 }
 
@@ -29,7 +32,7 @@ void function ServerCallback_ShowHotPotatoCountdown( float endTime )
 
 void function ServerCallback_AnnounceNewMark( int survivorEHandle )
 {
-	entity player = GetEntityFromEncodedEHandle( survivorEHandle )
+    entity player = GetEntityFromEncodedEHandle( survivorEHandle )
 
 	AnnouncementData announcement = Announcement_Create( Localize("#HOTPOTATO_NEWMARK", player.GetPlayerName() ) )
 	Announcement_SetSubText( announcement, "#HOTPOTATO_RUN" )
@@ -58,7 +61,7 @@ void function ServerCallback_PassedHotPotato()
 
 void function ServerCallback_HotPotatoSpectator()
 {
-	entity player = GetLocalClientPlayer()
+    entity player = GetLocalClientPlayer()
 
 	AnnouncementData announcement = Announcement_Create( "#HOTPOTATO_SPECTATING" )
 	Announcement_SetSubText( announcement, "#HOTPOTATO_SPECTATINGDESC" )
@@ -112,12 +115,19 @@ void function MarkedChanged( int markedEHandle )
 
 			ClGameState_SetInfoStatusText( Localize( "#HOTPOTATO_SURVIVE" ) )
 		}
+		if( !file.playingmusic )
+		{
+			PlaySomeMusic( player )
+			file.playingmusic = true
+		}
 	}
 	else
 	{
 
 		var rui = file.markedRui
 		RuiSetBool( rui, "isVisible", false )
+		player.Signal( "StopMusic" )
+		file.playingmusic = false
 
 		/* rui = file.mfdRui
 		RuiSetString( rui, "enemyMarkName", "" )
@@ -135,4 +145,21 @@ void function MarkedChanged( int markedEHandle )
 
 	if ( !GamePlaying() )
 		HideEventNotification()
+}
+
+void function PlaySomeMusic( entity player )
+{
+	player.EndSignal( "StopMusic" )
+
+	if ( GetMusicReducedSetting() )
+		return
+
+	OnThreadEnd(
+		function() : (  )
+		{
+			StopLoopMusic_DEPRECATED()
+			PlayActionMusic()
+		}
+	)
+	waitthread ForceLoopMusic_DEPRECATED( eMusicPieceID.GAMEMODE_1 ) 	//Is looping music, so doesn't return from this until the end signals kick in
 }
