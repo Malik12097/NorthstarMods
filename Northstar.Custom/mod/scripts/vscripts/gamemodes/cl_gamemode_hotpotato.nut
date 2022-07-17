@@ -29,7 +29,7 @@ void function ServerCallback_ShowHotPotatoCountdown( float endTime )
 
 void function ServerCallback_AnnounceNewMark( int survivorEHandle )
 {
-    entity player = GetEntityFromEncodedEHandle( survivorEHandle )
+	entity player = GetEntityFromEncodedEHandle( survivorEHandle )
 
 	AnnouncementData announcement = Announcement_Create( Localize("#HOTPOTATO_NEWMARK", player.GetPlayerName() ) )
 	Announcement_SetSubText( announcement, "#HOTPOTATO_RUN" )
@@ -58,7 +58,7 @@ void function ServerCallback_PassedHotPotato()
 
 void function ServerCallback_HotPotatoSpectator()
 {
-    entity player = GetLocalClientPlayer()
+	entity player = GetLocalClientPlayer()
 
 	AnnouncementData announcement = Announcement_Create( "#HOTPOTATO_SPECTATING" )
 	Announcement_SetSubText( announcement, "#HOTPOTATO_SPECTATINGDESC" )
