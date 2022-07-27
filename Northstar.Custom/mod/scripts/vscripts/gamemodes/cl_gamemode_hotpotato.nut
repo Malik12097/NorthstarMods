@@ -21,6 +21,23 @@ void function ClGamemodeHotPotato_Init()
 	RegisterSignal( "StopMusic" )
 	file.playingmusic = false
 	// file.mfdRui = CreatePermanentCockpitRui( $"ui/gamestate_info_mfd.rpak", MINIMAP_Z_BASE - 1 )
+	RegisterLevelMusicForTeam( eMusicPieceID.LEVEL_INTRO, "music_mp_fd_defeat_classic", TEAM_IMC )
+	RegisterLevelMusicForTeam( eMusicPieceID.LEVEL_INTRO, "music_mp_fd_defeat_classic", TEAM_MILITIA )
+
+	RegisterLevelMusicForTeam( eMusicPieceID.LEVEL_WIN, "music_mp_freeagents_outro_win", TEAM_IMC )
+	RegisterLevelMusicForTeam( eMusicPieceID.LEVEL_WIN, "music_mp_freeagents_outro_win", TEAM_MILITIA )
+
+	RegisterLevelMusicForTeam( eMusicPieceID.LEVEL_DRAW, "music_mp_freeagents_outro_lose", TEAM_IMC )
+	RegisterLevelMusicForTeam( eMusicPieceID.LEVEL_DRAW, "music_mp_freeagents_outro_lose", TEAM_MILITIA )
+
+	RegisterLevelMusicForTeam( eMusicPieceID.LEVEL_LOSS, "music_mp_freeagents_outro_lose", TEAM_IMC )
+	RegisterLevelMusicForTeam( eMusicPieceID.LEVEL_LOSS, "music_mp_freeagents_outro_lose", TEAM_MILITIA )
+
+	RegisterLevelMusicForTeam( eMusicPieceID.GAMEMODE_1, "music_reclamation_17a_thingsgetbad", TEAM_IMC )
+	RegisterLevelMusicForTeam( eMusicPieceID.GAMEMODE_1, "music_reclamation_17a_thingsgetbad", TEAM_MILITIA )
+
+	RegisterLevelMusicForTeam( eMusicPieceID.GAMEMODE_2, "music_s2s_15_bossgone", TEAM_IMC )
+	RegisterLevelMusicForTeam( eMusicPieceID.GAMEMODE_2, "music_s2s_15_bossgone", TEAM_MILITIA )
 }
 
 void function ServerCallback_ShowHotPotatoCountdown( float endTime )
@@ -48,7 +65,7 @@ void function ServerCallback_PassedHotPotato()
 {
 	entity localPlayer = GetLocalClientPlayer()
 	StartParticleEffectOnEntity( localPlayer.GetCockpit(), GetParticleSystemIndex( $"P_MFD" ), FX_PATTACH_ABSORIGIN_FOLLOW, -1 )
-	EmitSoundOnEntity( localPlayer, "UI_InGame_MarkedForDeath_PlayerMarked"  )
+	thread PlayMarkedSound( localPlayer )
 	HideEventNotification()
 	AnnouncementData announcement = Announcement_Create( "#HOTPOTATO_PASSED" )
 	Announcement_SetTitleColor( announcement, <1,0,0> )
@@ -117,7 +134,7 @@ void function MarkedChanged( int markedEHandle )
 		}
 		if( !file.playingmusic )
 		{
-			PlaySomeMusic( player )
+			thread PlaySomeMusic( player )
 			file.playingmusic = true
 		}
 	}
@@ -126,8 +143,11 @@ void function MarkedChanged( int markedEHandle )
 
 		var rui = file.markedRui
 		RuiSetBool( rui, "isVisible", false )
-		player.Signal( "StopMusic" )
-		file.playingmusic = false
+		if (file.playingmusic)
+		{
+			player.Signal( "StopMusic" )
+			file.playingmusic = false
+		}
 
 		/* rui = file.mfdRui
 		RuiSetString( rui, "enemyMarkName", "" )
@@ -157,9 +177,16 @@ void function PlaySomeMusic( entity player )
 	OnThreadEnd(
 		function() : (  )
 		{
-			StopLoopMusic_DEPRECATED()
-			PlayActionMusic()
+			thread ForcePlayMusic( eMusicPieceID.GAMEMODE_2 , 3.2 ) 
 		}
 	)
-	waitthread ForceLoopMusic_DEPRECATED( eMusicPieceID.GAMEMODE_1 ) 	//Is looping music, so doesn't return from this until the end signals kick in
+	waitthread ForcePlayMusic( eMusicPieceID.GAMEMODE_1 ) 	//Is looping music, so doesn't return from this until the end signals kick in
+	player.WaitSignal( "StopMusic" )
+}
+
+void function PlayMarkedSound( entity player )
+{
+	EmitSoundOnEntity( player, "UI_InGame_MarkedForDeath_PlayerMarked"  )
+	wait 1.0
+	StopSoundOnEntity( player, "UI_InGame_MarkedForDeath_PlayerMarked"  ) // this ui has a portion with a loud noise that would ruin music lol
 }

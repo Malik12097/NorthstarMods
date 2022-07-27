@@ -126,6 +126,7 @@ void function MarkNewPlayer( entity victim, var damageInfo ) // when marked punc
 		{
 			Highlight_SetEnemyHighlightWithParam1( p, "enemy_sonar", <0, 0, 0> )
 			Remote_CallFunction_NonReplay( p, "ServerCallback_MarkedChanged", victim.GetEncodedEHandle() )
+			NSSendPopUpMessageToPlayer( p, "The potato has been passed to " + victim.GetPlayerName() + "!" )
 		}
 
 		Highlight_SetEnemyHighlight( victim, "enemy_boss_bounty" )
