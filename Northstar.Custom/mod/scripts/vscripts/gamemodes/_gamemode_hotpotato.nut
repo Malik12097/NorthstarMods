@@ -45,7 +45,7 @@ void function HotPotatoInitCountdown()
 	file.realplayers = GetPlayerArray()
 	file.aliveplayers = GetPlayerArray().len()
 
-	if (GetGameState() != eGameState.Playing)
+	if ( GetGameState() != eGameState.Playing )
 		return
 
 	entity player = GetRandomPlayer()
