@@ -92,7 +92,7 @@ void function ServerCallback_HotPotatoSpectator()
 
 void function ServerCallback_MarkedChanged( int markedEHandle )
 {
-	thread MarkedChanged(markedEHandle)
+	thread MarkedChanged( markedEHandle )
 }
 
 void function MarkedChanged( int markedEHandle )
@@ -149,18 +149,6 @@ void function MarkedChanged( int markedEHandle )
 			file.playingmusic = false
 		}
 
-		/* rui = file.mfdRui
-		RuiSetString( rui, "enemyMarkName", "" )
-		RuiSetBool( rui, "isEnemyMarked", false ) */
-		/*
-		player.hudElems.EnemyFlagIcon.Hide()
-		if ( level.overheadIconShouldPing )
-		{
-			player.hudElems.EnemyFlagPingIcon.Hide()
-			player.hudElems.EnemyFlagPing2Icon.Hide()
-		}
-		player.hudElems.EnemyFlagLabel.Hide()
-		*/
 	}
 
 	if ( !GamePlaying() )

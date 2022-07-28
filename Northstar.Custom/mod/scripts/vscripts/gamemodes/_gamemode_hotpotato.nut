@@ -58,7 +58,7 @@ void function MarkRandomPlayer( entity player )
 	if (GetGameState() != eGameState.Playing)
 		return
 	
-	if (!IsAlive(player) || !IsValid(player) )
+	if ( !IsAlive(player) || !IsValid(player) )
 	{
 		thread MarkRandomPlayer( GetRandomPlayer() )
 		return
@@ -259,7 +259,7 @@ void function HotPotatoPlayerKilled( entity player, entity attacker, var damageI
 
 void function WaitBeforeMark()
 {
-	if (GetGameState() != eGameState.Playing)
+	if ( GetGameState() != eGameState.Playing )
 		return
 
 	wait 10
