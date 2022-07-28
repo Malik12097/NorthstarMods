@@ -189,7 +189,7 @@ void function UpdateHotPotatoLoadout( entity player )
 			player.TakeWeaponNow( weapon.GetWeaponClassName() )
 
 		// check if this player is inside file.realplayers
-		if (file.realplayers.find(player) != -1 || !file.firstmarked)
+		if ( file.realplayers.find( player ) != -1 || !file.firstmarked )
 		{
 			player.GiveOffhandWeapon( "melee_pilot_emptyhanded", OFFHAND_MELEE, [ "allow_as_primary" ])
 			player.GiveOffhandWeapon( "mp_ability_heal", OFFHAND_LEFT )
