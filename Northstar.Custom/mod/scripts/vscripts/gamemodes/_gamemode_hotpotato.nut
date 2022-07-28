@@ -107,7 +107,7 @@ void function HotPotatoCountdown()
 	}
 
 	player.Die( null, null, { scriptType = DF_GIB } )
-	foreach ( entity p in GetPlayerArray() )
+	foreach ( entity p in file.realplayers )
 		p.AddToPlayerGameStat( PGS_PILOT_KILLS, 1 ) // adds "Waves Survived" to the scoreboard
 }
 
