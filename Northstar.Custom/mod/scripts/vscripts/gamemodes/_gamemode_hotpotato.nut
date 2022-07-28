@@ -236,7 +236,7 @@ void function HotPotatoPlayerKilled( entity player, entity attacker, var damageI
 		file.realplayers.remove( file.realplayers.find( player ) )
 	}
 
-	if (file.aliveplayers == 1)
+	if ( file.aliveplayers == 1 )
 		SetWinner( file.realplayers[0].GetTeam() )
 	else if (i == 0 || file.aliveplayers == 0)
 		SetWinner( TEAM_UNASSIGNED )
