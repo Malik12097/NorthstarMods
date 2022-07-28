@@ -210,7 +210,15 @@ void function UpdateHotPotatoLoadout( entity player )
 
 			Remote_CallFunction_NonReplay( player, "ServerCallback_HotPotatoSpectator" )
 		}
+		thread RemoveEarnMeter_Threaded( player )
 	}
+}
+
+void function RemoveEarnMeter_Threaded( entity player )
+{
+	WaitFrame()
+	if ( IsValid( player ) )
+		PlayerEarnMeter_SetMode( player, 0 ) // this hides the earn meter UI
 }
 
 // check if there's only one player alive, if so, they win
