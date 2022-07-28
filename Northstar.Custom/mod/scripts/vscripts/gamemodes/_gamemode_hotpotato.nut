@@ -53,7 +53,7 @@ void function HotPotatoInitCountdown()
 }
 
 // give them a red outline to indicate they have the potato, also give them the ability to melee other players to pass the outline
-void function MarkRandomPlayer(entity player)
+void function MarkRandomPlayer( entity player )
 {
 	if (GetGameState() != eGameState.Playing)
 		return
