@@ -107,6 +107,8 @@ void function HotPotatoCountdown()
 	}
 
 	player.Die( null, null, { scriptType = DF_GIB } )
+	foreach ( entity p in GetPlayerArray() )
+		p.AddToPlayerGameStat( PGS_PILOT_KILLS, 1 ) // adds "Waves Survived" to the scoreboard
 }
 
 void function MarkNewPlayer( entity victim, var damageInfo ) // when marked punch someone, pass the hot potato
