@@ -226,7 +226,7 @@ void function HotPotatoPlayerKilled( entity player, entity attacker, var damageI
 {
 	int i = 0
 	foreach( entity p in GetPlayerArray() )
-		if (IsAlive(p))
+		if ( IsAlive(p) )
 			i++
 
 	// if this player is in file.realplayers, lower file.aliveplayers by one and remove them from file.realplayers
