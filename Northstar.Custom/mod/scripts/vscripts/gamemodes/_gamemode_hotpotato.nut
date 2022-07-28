@@ -233,7 +233,7 @@ void function HotPotatoPlayerKilled( entity player, entity attacker, var damageI
 	if ( file.realplayers.find( player ) != -1 )
 	{
 		file.aliveplayers--
-		file.realplayers.remove(file.realplayers.find(player))
+		file.realplayers.remove( file.realplayers.find( player ) )
 	}
 
 	if (file.aliveplayers == 1)
