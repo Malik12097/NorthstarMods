@@ -2,12 +2,12 @@ global function GamemodeHotPotato_Init
 
 struct
 {
-	bool firstmarked
-	float hotpotatobegin
-	float hotpotatoend
-	entity marked
-	array<entity> realplayers
-	int aliveplayers
+	bool firstMarked                     // true when the first player has been marked
+	float hotPotatoStart                 // Time() when first started
+	float hotPotatoEnd                   // playlist var "hotpotato_timer", default 30.0 seconds
+	entity marked                        // player that is currently marked
+	array<entity> activePlayers          // non-spectators players
+	int alivePlayers                     // separate from activePlayers because I have trust issues in my own code
 } file
 
 void function GamemodeHotPotato_Init()
@@ -34,7 +34,7 @@ void function GamemodeHotPotato_Init()
 
 void function HotPotatoInit()
 {
-	file.hotpotatoend = GetCurrentPlaylistVarFloat( "hotpotato_timer", 30.0 )
+	file.hotPotatoEnd = GetCurrentPlaylistVarFloat( "hotpotato_timer", 30.0 )
 	thread HotPotatoInitCountdown()
 }
 
@@ -42,8 +42,8 @@ void function HotPotatoInitCountdown()
 {
 	wait 10
 	
-	file.realplayers = GetPlayerArray()
-	file.aliveplayers = GetPlayerArray().len()
+	file.activePlayers = GetPlayerArray()
+	file.alivePlayers = GetPlayerArray().len()
 
 	if ( GetGameState() != eGameState.Playing )
 		return
@@ -64,19 +64,19 @@ void function MarkRandomPlayer( entity player )
 		return
 	}
 
-	file.hotpotatobegin = Time()
+	file.hotPotatoStart = Time()
 
 	foreach ( entity p in GetPlayerArray() )
 	{
 		Highlight_SetEnemyHighlightWithParam1( p, "enemy_sonar", <0, 0, 0> )
-		Remote_CallFunction_NonReplay( p, "ServerCallback_ShowHotPotatoCountdown", file.hotpotatobegin + file.hotpotatoend )
+		Remote_CallFunction_NonReplay( p, "ServerCallback_ShowHotPotatoCountdown", file.hotPotatoStart + file.hotPotatoEnd )
 		if( p != player )
 			Remote_CallFunction_NonReplay( p, "ServerCallback_AnnounceNewMark", player.GetEncodedEHandle() )
 			
 		Remote_CallFunction_NonReplay( p, "ServerCallback_MarkedChanged", player.GetEncodedEHandle() )
 	}
 
-	file.firstmarked = true
+	file.firstMarked = true
 
 	Highlight_SetEnemyHighlight( player, "enemy_boss_bounty" ) // red outline
 	file.marked = player
@@ -88,8 +88,8 @@ void function HotPotatoCountdown()
 {
 	svGlobal.levelEnt.EndSignal( "OnMarkedDeath" )
 
-	// wait until Time() reaches file.hotpotatoend
-	while ( Time() < file.hotpotatobegin + file.hotpotatoend )
+	// wait until Time() reaches file.hotPotatoEnd
+	while ( Time() < file.hotPotatoStart + file.hotPotatoEnd )
 	{
 		wait 1
 	}
@@ -107,7 +107,7 @@ void function HotPotatoCountdown()
 	}
 
 	player.Die( null, null, { scriptType = DF_GIB } )
-	foreach ( entity p in file.realplayers )
+	foreach ( entity p in file.activePlayers )
 		p.AddToPlayerGameStat( PGS_PILOT_KILLS, 1 ) // adds "Waves Survived" to the scoreboard
 }
 
@@ -156,11 +156,11 @@ void function HotPotatoInitPlayer( entity player )
 
 void function HotPotatoPlayerDisconnected( entity player )
 {
-	//if this player was in file.realplayers we remove them from the array as well as lower file.aliveplayers by one
-	if ( file.realplayers.find( player ) != -1 )
+	//if this player was in file.activePlayers we remove them from the array as well as lower file.alivePlayers by one
+	if ( file.activePlayers.find( player ) != -1 )
 	{
-		file.realplayers.remove( file.realplayers.find( player ) )
-		file.aliveplayers--
+		file.activePlayers.remove( file.activePlayers.find( player ) )
+		file.alivePlayers--
 
 		if ( player == file.marked ) // reset countdown etc if marked player suicides or disconnects
 		{
@@ -188,8 +188,8 @@ void function UpdateHotPotatoLoadout( entity player )
 		foreach ( entity weapon in player.GetOffhandWeapons() )
 			player.TakeWeaponNow( weapon.GetWeaponClassName() )
 
-		// check if this player is inside file.realplayers
-		if ( file.realplayers.find( player ) != -1 || !file.firstmarked )
+		// check if this player is inside file.activePlayers
+		if ( file.activePlayers.find( player ) != -1 || !file.firstMarked )
 		{
 			player.GiveOffhandWeapon( "melee_pilot_emptyhanded", OFFHAND_MELEE, [ "allow_as_primary" ] )
 			player.GiveOffhandWeapon( "mp_ability_heal", OFFHAND_LEFT )
@@ -229,16 +229,16 @@ void function HotPotatoPlayerKilled( entity player, entity attacker, var damageI
 		if ( IsAlive(p) )
 			i++
 
-	// if this player is in file.realplayers, lower file.aliveplayers by one and remove them from file.realplayers
-	if ( file.realplayers.find( player ) != -1 )
+	// if this player is in file.activePlayers, lower file.alivePlayers by one and remove them from file.activePlayers
+	if ( file.activePlayers.find( player ) != -1 )
 	{
-		file.aliveplayers--
-		file.realplayers.remove( file.realplayers.find( player ) )
+		file.alivePlayers--
+		file.activePlayers.remove( file.activePlayers.find( player ) )
 	}
 
-	if ( file.aliveplayers == 1 )
-		SetWinner( file.realplayers[0].GetTeam() )
-	else if (i == 0 || file.aliveplayers == 0)
+	if ( file.alivePlayers == 1 )
+		SetWinner( file.activePlayers[0].GetTeam() )
+	else if (i == 0 || file.alivePlayers == 0)
 		SetWinner( TEAM_UNASSIGNED )
 
 	if ( player == file.marked ) // reset countdown etc if marked player suicides or disconnects
@@ -271,8 +271,8 @@ entity function GetRandomPlayer()
 	if (GetPlayerArray().len() == 1)
 		return GetPlayerArray()[0]
 	
-	if ( file.realplayers.len() <= 1 )
-		return file.realplayers[0]
+	if ( file.activePlayers.len() <= 1 )
+		return file.activePlayers[0]
 
-	return file.realplayers[ RandomInt( file.realplayers.len() - 1 ) ]
+	return file.activePlayers[ RandomInt( file.activePlayers.len() - 1 ) ]
 }
